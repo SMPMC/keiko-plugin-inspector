@@ -147,7 +147,7 @@ public class KeikoSecurityManager extends DomainAccessController {
                         return false;
                     }
 
-                    if ((allowedPort < 0) || (allowedPort > 65535)) {
+                    if ((allowedPort < -1) || (allowedPort > 65535)) {
                         KeikoPluginInspector.warn("Invalid rule for operation %s: " +
                                         "invalid port (port must be an integer in range 0 to 65535): %s." +
                                         "Ignoring this rule!",
@@ -161,6 +161,7 @@ public class KeikoSecurityManager extends DomainAccessController {
                 boolean allowPort = allowedPort == -0xCAFE || port == allowedPort;
 
                 return allowHost && allowPort;
+			} else if (arg.contains(" RESOLVE")) {
             } else {
                 KeikoPluginInspector.warn("Invalid rule for operation %s: missing port specification; " +
                         "required syntax: 'host PORT port'. Ignoring this rule!", op);

@@ -60,6 +60,10 @@ public final class StringUtils {
             case "FTP":
                 return "21";
 
+			// Special name to use for permitting resolution of an IP address
+            case "RESOLVE":
+                return "-1";
+
             case "SFTP":
             case "SSH":
                 return "22";
