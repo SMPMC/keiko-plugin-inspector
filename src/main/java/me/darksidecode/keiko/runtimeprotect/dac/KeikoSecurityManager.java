@@ -116,7 +116,27 @@ public class KeikoSecurityManager extends DomainAccessController {
 
     private void checkConnectionAccess(String host, int port, Operation op) {
         checkAccess(arg -> {
-            if (arg.contains(" PORT ")) {
+            if (arg.contains(" RESOLVE")) {
+
+				// Skip requests that are for establishing connections:
+				if (port != -1) return false;
+
+                String[] args = arg.split(" RESOLVE");
+                String allowedHost = args[0].trim();
+
+                boolean allowHost = StringUtils.matchWildcards(host, allowedHost);
+
+				// The port value will return -1 when attempting to determine
+				// the IP address of the specified host name.
+                boolean allowPort = port == -1;
+
+                return allowHost && allowPort;
+
+			} else if (arg.contains(" PORT ")) {
+
+				// Skip requests that are for resolution:
+				if (port == -1) return false;
+
                 String[] args = arg.split(" PORT ");
 
                 if (args.length != 2) {
@@ -147,7 +167,7 @@ public class KeikoSecurityManager extends DomainAccessController {
                         return false;
                     }
 
-                    if ((allowedPort < -1) || (allowedPort > 65535)) {
+                    if ((allowedPort < 0) || (allowedPort > 65535)) {
                         KeikoPluginInspector.warn("Invalid rule for operation %s: " +
                                         "invalid port (port must be an integer in range 0 to 65535): %s." +
                                         "Ignoring this rule!",
@@ -161,9 +181,9 @@ public class KeikoSecurityManager extends DomainAccessController {
                 boolean allowPort = allowedPort == -0xCAFE || port == allowedPort;
 
                 return allowHost && allowPort;
-			} else if (arg.contains(" RESOLVE")) {
+
             } else {
-                KeikoPluginInspector.warn("Invalid rule for operation %s: missing port specification; " +
+                KeikoPluginInspector.warn("Invalid rule for operation %s: missing RESOLVE keyword or port specification; " +
                         "required syntax: 'host PORT port'. Ignoring this rule!", op);
 
                 return false;
